@@ -68,7 +68,8 @@ We decided to update the ERD with the following changes:
 
    - Easier to implement but failed to capture detailed event participation data.
 
-## ERD Version 2
+## ERD Version 2 - Enhanced ERD
+(https://github.com/KHRISTMAE/VALID8/blob/main/ERD/ERD%20v.2.jpg)
 ## Conclusion
 
 The updated ERD provides a robust and flexible architecture that supports advanced features like multi-role management and facial recognition, ensuring the system meets current and future needs despite the added complexity.
