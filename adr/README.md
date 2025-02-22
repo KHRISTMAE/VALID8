@@ -9,7 +9,7 @@ This directory contains all Architecture Decision Records for the **Facial Recog
 
 The updated Entity-Relationship Diagram (ERD) can be found below:
 
-![Enhanced ERD](./enhanced_erd.png)
+![Enhanced ERD](https://github.com/KHRISTMAE/VALID8/blob/main/ERD/ERD%20v.2.jpg)
 
 ## Purpose
 
