@@ -3,6 +3,7 @@
 This directory contains all Architecture Decision Records for the **Facial Recognition Management System**.
 
 ## ADR List
+- [ADR #001- ENHANCED EDR](https://github.com/KHRISTMAE/VALID8/blob/main/adr/ADR%20%23001%20-%20Updated%20ERD)
 
 ## ERD Reference
 
