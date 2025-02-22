@@ -68,7 +68,7 @@ We decided to update the ERD with the following changes:
 
    - Easier to implement but failed to capture detailed event participation data.
 
-
+## ERD Version 2
 ## Conclusion
 
 The updated ERD provides a robust and flexible architecture that supports advanced features like multi-role management and facial recognition, ensuring the system meets current and future needs despite the added complexity.
