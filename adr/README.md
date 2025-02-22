@@ -4,8 +4,6 @@ This directory contains all Architecture Decision Records for the **Facial Recog
 
 ## ADR List
 
-- [Database Schema Enhancement for Event Management System](ADR #001 - Updated ERD)
-
 ## ERD Reference
 
 The updated Entity-Relationship Diagram (ERD) can be found below:
