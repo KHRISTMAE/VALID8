@@ -1,4 +1,4 @@
-# Architecture Decision Record #001
+# Architecture Decision Record #002
 
 ## Title: Wireframe Enhancement – Version 1 to Version 2
 
