@@ -26,23 +26,16 @@ We decided to update the wireframes with the following changes based on the stak
 
 1. Improved Layout and Navigation
 
-Enhanced navigation flow with clearly defined menus and breadcrumbs.
+Enhanced navigation flow with clearly defined menus and especially in 
 
-2. Enhanced Visual Hierarchy
 
-Applied varied font sizes, colors, and spacing for better readability.
+2. Feature Additions
 
-3. Feature Additions
+- Include logout and logout confirmation in student dashboard.
+- Dashboard for user login and option for the user's role.
 
-Included search bars, filters, and interactive elements.
 
-4. Aesthetic Improvements
 
-Modernized design with refined color schemes, icons, and typography.
-
-5. Responsive Design
-
-Optimized layouts for multiple devices (desktop, tablet, mobile).
 
 ## Consequences
 
@@ -51,8 +44,6 @@ Optimized layouts for multiple devices (desktop, tablet, mobile).
 Usability: Improved navigation and content clarity.
 
 Engagement: Enhanced aesthetics and interactivity boost user engagement.
-
-Accessibility: Responsive design improves accessibility across devices.
 
 ### Negative
 
