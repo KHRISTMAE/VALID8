@@ -33,6 +33,7 @@ Enhanced navigation flow with clearly defined menus and especially in
 
 - Include logout and logout confirmation in student dashboard.
 - Dashboard for user login and option for the user's role.
+- Updated SSG Officer attendance view dashboard, including time-in and time-out.
 
 
 
