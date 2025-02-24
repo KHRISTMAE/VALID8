@@ -12,8 +12,6 @@ Application: A Node.js-based web application (React frontend, Express.js backend
 
 CI/CD Platform: GitHub Actions
 
-Containerization: Docker
-
 Deployment Environment: Local Server
 
 ### Pipeline Stages
