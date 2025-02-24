@@ -1,9 +1,67 @@
-CI/CD Pipeline Proposal – GitHub Actions
-Overview
-This CI/CD pipeline aims to automate the build, test, and deployment processes, ensuring smooth and efficient delivery from development to production. Using GitHub Actions, the team can maintain continuous integration and deployment within the same repository.
+# CI/CD Pipeline Proposal 
+GitHub Actions
 
-Workflow Components
-Continuous Integration (CI)
+### Overview
+To automate and streamline the development and deployment process, a CI/CD pipeline will be implemented using GitHub Actions. This setup will ensure automated testing, building, and deployment directly from the GitHub repository. Using GitHub Actions, the team can maintain continuous integration and deployment within the same repository. 
+
+### Tools and Technologies
+
+Version Control: GitHub
+
+Application: A Node.js-based web application (React frontend, Express.js backend).
+
+CI/CD Platform: GitHub Actions
+
+Containerization: Docker
+
+Deployment Environment: Local Server
+
+### Pipeline Stages
+
+1. Code Commit
+
+Developers push code to the GitHub repository.
+
+Trigger: Pull Requests (PR) and direct pushes to specific branches (e.g., main, develop).
+
+2. Continuous Integration (CI)
+
+Linting & Static Code Analysis: Ensure code quality using tools like ESLint/Prettier.
+
+Unit Testing: Execute tests with frameworks such as Jest/Mocha.
+
+Build: Compile the project (Webpack/Babel for frontend, etc.).
+
+Artifact Creation: Build and tag Docker images.
+
+3. Continuous Deployment (CD)
+
+Staging Deployment:
+
+Automatically deploy successful builds to a staging environment.
+
+Run integration and end-to-end tests (e.g., Cypress).
+
+Approval Gate:
+
+Require manual approval for production deployment.
+
+Production Deployment:
+
+Deploy to production using GitHub Actions workflows.
+
+Support for Blue-Green or Rolling deployments.
+
+4. Post-Deployment
+
+Smoke Testing: Verify deployment integrity.
+
+Monitoring: Integrate tools like Prometheus/Grafana.
+
+Error Tracking: Utilize Sentry or similar tools.
+
+## Workflow Components
+### Continuous Integration (CI)
 
 Trigger: On every push or pull request to the main or develop branches.
 Steps:
@@ -12,7 +70,7 @@ Install dependencies (npm install / pip install / etc.).
 Run code linters and formatters.
 Execute unit and integration tests.
 Build the application.
-Continuous Deployment (CD)
+### Continuous Deployment (CD)
 
 Trigger: Successful CI build on the main branch.
 Steps:
