@@ -58,15 +58,7 @@ We decided to update the ERD with the following changes:
 - **Complexity:** Additional tables and relationships increase the system's complexity.
 - **Performance:** More joins in queries could impact database performance, necessitating optimization.
 
-## Alternatives Considered
 
-1. **Flat User Structure**
-
-   - Simpler but lacked flexibility for multi-role users.
-
-2. **Basic Attendance Tracking**
-
-   - Easier to implement but failed to capture detailed event participation data.
 
 ## ERD Version 2 - Enhanced ERD
 (https://github.com/KHRISTMAE/VALID8/blob/main/ERD/ERD%20v.2.jpg)
