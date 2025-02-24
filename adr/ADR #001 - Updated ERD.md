@@ -66,4 +66,4 @@ We decided to update the ERD with the following changes:
 
 The updated ERD provides a robust and flexible architecture that supports advanced features like multi-role management and facial recognition, ensuring the system meets current and future needs despite the added complexity.
 
-- [1. Project Overview](#1-project-overview)
+
