@@ -74,5 +74,5 @@ Would offer maximum improvements but at a significantly higher cost and time.
 
 The updated wireframes (v.2) provide a more user-friendly, visually appealing, and responsive interface. While the changes introduce additional complexity and development time, they significantly enhance user experience and meet stakeholder expectations.
 
-1. Project Overview
+
 
