@@ -20,10 +20,11 @@
 
 ## 2. Functional Requirements
 
-### Core Features
-- Sends instant notifications to students confirming their attendance status, along with reminders for upcoming events.
-- Allows students to view their attendance history, including past events attended, dates, and statuses (e.g., present, absent).
-- Features an intuitive and responsive user interface for students, SSG officer, event organizer,  and administrators, making it easy to navigate and access attendance information.
+User Management: Admins can create, edit, and delete user accounts. Role-based access control for students, SSG officers, event organizers, and admins.
+Event Management: Event organizers can create, edit, and delete events. 
+Attendance Tracking: SSG Officer verifies student attendance via Face recognition
+Attendance Reports: Admins can generate event attendance reports. Students can view their attendance history.
+Security & Authentication: User login using credentials or Google/Facebook login. Secure API for communication between the website and backend.
 
 ### User Stories/ Use Cases
  **As a Student:**
@@ -32,9 +33,9 @@
 - I would like to receive an email confirmation after checking in to ensure that my attendance is valid.
 - I want to be able to view my past attendance records for events, allowing me to track my participation over time.
 
-**As an SSG Officer:**
-- I want to verify student check-ins to ensure that only valid attendees are recorded.
-- Additionally, I want to flag any incorrect check-ins so that event organizers or administrators can review them.
+**As an Student Officer:**
+-I want to track my attendance and view the events I have participated in.
+- I want to scan students’ face using face recognition so that I can ensure accurate and efficient tracking of attendees.
 
 **As an Event Organizer:**
 - I want to create a new event by entering essential details such as the event name, date, time, location, and description.
@@ -43,7 +44,7 @@
 - I want to send email notifications or reminders to registered students about the event.
 
 **As an Administrator:**
-- I want to manage user accounts for students, SSG officer, and event organizers.
+- I want to manage user accounts for students, Student officer, and event organizers.
 - I want to oversee all events created within the system and review flagged attendance issues so that attendance accuracy is maintained.
 - I want to set permissions and access levels for different users.
 - I want to generate comprehensive reports on attendance data across all events. 
@@ -56,7 +57,7 @@
 ### Data Requirements 
 ### 1. User Data:
 ### Student Information:
-- Student ID, name, email address, contact number, enrollment status, and program/major.
+- Student ID, name, email address, contact number, enrollment status, and program/major, department.
 ### Event Organizer Information:
 - Organizer ID, name, email address, contact number.
 
@@ -68,7 +69,7 @@
 
 ### 3. Attendance Data:
 ### Check-In Records:
-- Check-in ID, event ID, student ID, check-in time, and check-out time (if applicable).
+- Check-in ID, event ID, student ID, check-in time, mid-event checkpoint, and check-out time.
 ### Attendance Status:
 - Status (present, absent, late).
 
@@ -88,6 +89,8 @@
  ### Performance: 
  - The system should respond quickly to user actions, with minimal latency during event creation, registration, and check-in processes.
  - It should be able to handle thousands of students concurrently without degradation in performance, ensuring a smooth user experience even during peak usage times.
+ - Must handle at least 200+ concurrent users without crashing. Attendance verification should take less than 5 seconds per student. 
+
 
 ### Security: 
 - The system must implement robust security measures to protect user data and prevent unauthorized access. This includes data encryption, secure authentication methods, and regular security audits.
