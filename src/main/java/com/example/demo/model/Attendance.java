@@ -14,6 +14,10 @@ public class Attendance {
     @JoinColumn(name = "studentID", nullable = false)
     private Student student;
 
+    @ManyToOne
+    @JoinColumn(name = "eventID", nullable = false) // Added missing FK
+    private Event event;
+
     private LocalDateTime checkInTime;
     private LocalDateTime midEventCheckpoint;
     private LocalDateTime checkOutTime;
@@ -27,6 +31,9 @@ public class Attendance {
 
     public Student getStudent() { return student; }
     public void setStudent(Student student) { this.student = student; }
+
+    public Event getEvent() { return event; } // Getter for Event FK
+    public void setEvent(Event event) { this.event = event; } // Setter for Event FK
 
     public LocalDateTime getCheckInTime() { return checkInTime; }
     public void setCheckInTime(LocalDateTime checkInTime) { this.checkInTime = checkInTime; }

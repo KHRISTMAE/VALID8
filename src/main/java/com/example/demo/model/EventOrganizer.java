@@ -16,7 +16,7 @@ public class EventOrganizer {
     private String email;
 
     @Column(nullable = false)
-    private String password;
+    private String password; // Store as a hashed password for security
 
     // Getters and Setters
     public Long getOrganizerID() { return organizerID; }
