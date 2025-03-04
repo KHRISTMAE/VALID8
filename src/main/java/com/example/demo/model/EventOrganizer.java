@@ -18,6 +18,13 @@ public class EventOrganizer {
     @Column(nullable = false)
     private String password; // Store as a hashed password for security
 
+    public EventOrganizer(Long organizerID, String organizerName, String organizerEmail) {
+    }
+
+    public EventOrganizer() {
+
+    }
+
     // Getters and Setters
     public Long getOrganizerID() { return organizerID; }
     public void setOrganizerID(Long organizerID) { this.organizerID = organizerID; }

@@ -25,6 +25,12 @@ public class Attendance {
     @Column(nullable = false)
     private String status;
 
+    public Attendance(Long attendanceID, long student, String studentName,String dateTime, String status) {
+        this.attendanceID = attendanceID;
+        this.status = status;
+
+    }
+
     // Getters and Setters
     public Long getAttendanceID() { return attendanceID; }
     public void setAttendanceID(Long attendanceID) { this.attendanceID = attendanceID; }

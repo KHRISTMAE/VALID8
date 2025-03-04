@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SSGOfficerRepository extends JpaRepository<SSGOfficer, Long> {
     SSGOfficer findByEmail(String email);
+
 }

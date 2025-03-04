@@ -21,6 +21,13 @@ public class SSGOfficer {
     @Column(nullable = false)
     private String password;
 
+    public SSGOfficer(long officerID, String officerName, String officerPosition, String officerEmail) {
+    }
+
+    public SSGOfficer() {
+
+    }
+
     // Getters and Setters
     public Long getOfficerID() { return officerID; }
     public void setOfficerID(Long officerID) { this.officerID = officerID; }

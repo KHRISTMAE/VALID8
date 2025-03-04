@@ -38,6 +38,13 @@ public class Student {
     @JsonIgnore // Prevent circular reference issue in JSON response
     private List<Attendance> attendances;
 
+    public Student(long StudentID, String name, String year, String email) {
+    }
+
+    public Student() {
+
+    }
+
     // Getters and Setters
     public Long getStudentID() { return studentID; }
     public void setStudentID(Long studentID) { this.studentID = studentID; }
