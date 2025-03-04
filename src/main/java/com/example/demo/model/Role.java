@@ -8,10 +8,10 @@ import java.util.List;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long roleID;
+    private Long roleID; // ✅ PK
 
     @Column(unique = true, nullable = false)
-    private String roleName;
+    private String roleName; // ✅ Present
 
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
     private List<UserTable> users;

@@ -19,10 +19,6 @@ public class UserTable {
     @Column(unique = true, nullable = false)
     private String username;
 
-    @OneToOne
-    @JoinColumn(name = "faceID")
-    private FaceEntity face;
-
     // Getters and Setters
     public Long getUserID() { return userID; }
     public void setUserID(Long userID) { this.userID = userID; }
@@ -35,7 +31,4 @@ public class UserTable {
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
-
-    public FaceEntity getFace() { return face; }
-    public void setFace(FaceEntity face) { this.face = face; }
 }

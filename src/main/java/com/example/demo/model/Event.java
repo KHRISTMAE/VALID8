@@ -14,13 +14,13 @@ public class Event {
     private String eventName;
 
     @Column(nullable = false)
-    private LocalDateTime dateTime;
+    private LocalDateTime dateAndTime; // Matches ERD attribute
 
     @Column(nullable = false)
     private String location;
 
     @ManyToOne
-    @JoinColumn(name = "organizerID")
+    @JoinColumn(name = "organizerID", nullable = false) // FK constraint
     private EventOrganizer organizer;
 
     // Getters and Setters
@@ -30,8 +30,8 @@ public class Event {
     public String getEventName() { return eventName; }
     public void setEventName(String eventName) { this.eventName = eventName; }
 
-    public LocalDateTime getDateTime() { return dateTime; }
-    public void setDateTime(LocalDateTime dateTime) { this.dateTime = dateTime; }
+    public LocalDateTime getDateAndTime() { return dateAndTime; }
+    public void setDateAndTime(LocalDateTime dateAndTime) { this.dateAndTime = dateAndTime; }
 
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
