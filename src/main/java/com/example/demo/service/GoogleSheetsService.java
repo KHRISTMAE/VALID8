@@ -52,13 +52,13 @@ public class GoogleSheetsService {
     }
 
     public void syncPostgreSQLToGoogleSheets() {
-        String dbUrl = "jdbc:postgresql://localhost:5432/Valid8_db";
+        String dbUrl = "jdbc:postgresql://localhost:5432/Valid8";
         String dbUser = "postgres";
         String dbPassword = "Anthony2001";
 
         try (Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword)) {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT studentID, studentName, programName, timeIn, timeOut, photoURL, status FROM attendance");
+            ResultSet rs = stmt.executeQuery("SELECT studentID, studentName, programName, timeIn, timeOut, photoURL, status FROM Attendance");
 
             List<List<Object>> data = new ArrayList<>();
             while (rs.next()) {

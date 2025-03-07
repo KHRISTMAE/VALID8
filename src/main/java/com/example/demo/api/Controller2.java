@@ -255,7 +255,7 @@ public class Controller2 {
         return eventRepo.findById(id).map(event -> {
             event.setEventName(eventDetails.getEventName());
             event.setLocation(eventDetails.getLocation());
-            event.setDateTime(eventDetails.getDateTime());
+            event.setDateAndTime(eventDetails.getDateAndTime());
             return eventRepo.save(event);
         }).orElseThrow(() -> new RuntimeException("Event not found"));
     }

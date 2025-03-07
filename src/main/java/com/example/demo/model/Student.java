@@ -2,6 +2,8 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import java.util.List;
 
 @Entity
@@ -11,41 +13,54 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long studentID;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100) // ✅ Added length constraint
     private String studentName;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 100) // ✅ Limited email length
     private String email;
 
-    private String password;
+    @Column(nullable = false) // ✅ Ensure password is required
+    private String password; // ✅ Will store hashed password
 
     @ManyToOne
-    @JoinColumn(name = "programID", nullable = false) // Added Foreign Key for Program
+    @JoinColumn(name = "programID", nullable = false) // ✅ Foreign Key for Program
     private Program program;
 
     @Column(nullable = false)
-    private int yearLevel; // Added yearLevel
+    private int yearLevel; // ✅ Ensure yearLevel is required
 
     @ManyToOne
-    @JoinColumn(name = "userID", nullable = false) // Added Foreign Key for UserTable
+    @JoinColumn(name = "userID", nullable = false) // ✅ Foreign Key for UserTable
     private UserTable user;
 
-    @Lob // Large Object for storing images
-    @Column(columnDefinition = "LONGBLOB") // Store image as binary data
-    private byte[] photo; // Added Photo for Face Recognition
+    @Lob
+    @Column(columnDefinition = "BYTEA") // ✅ PostgreSQL format for binary data
+    private byte[] photo; // ✅ Store photo for Face Recognition
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore // Prevent circular reference issue in JSON response
+    @JsonIgnore // ✅ Prevent circular reference issue
     private List<Attendance> attendances;
 
-    public Student(long StudentID, String name, String year, String email) {
+    // ✅ Default Constructor (Required for JPA)
+    public Student() {}
+
+    // ✅ Correct Parameterized Constructor
+    public Student(String studentName, String email, String password, Program program, int yearLevel, UserTable user) {
+        this.studentName = studentName;
+        this.email = email;
+        this.password = hashPassword(password); // ✅ Hash password
+        this.program = program;
+        this.yearLevel = yearLevel;
+        this.user = user;
     }
 
-    public Student() {
-
+    // ✅ Hash the password using BCrypt
+    private String hashPassword(String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        return passwordEncoder.encode(password);
     }
 
-    // Getters and Setters
+    // ✅ Getters and Setters
     public Long getStudentID() { return studentID; }
     public void setStudentID(Long studentID) { this.studentID = studentID; }
 
@@ -56,19 +71,19 @@ public class Student {
     public void setEmail(String email) { this.email = email; }
 
     public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public void setPassword(String password) { this.password = hashPassword(password); } // ✅ Always hash password
 
-    public Program getProgram() { return program; } // Getter for Program
-    public void setProgram(Program program) { this.program = program; } // Setter for Program
+    public Program getProgram() { return program; }
+    public void setProgram(Program program) { this.program = program; }
 
-    public int getYearLevel() { return yearLevel; } // Getter for Year Level
-    public void setYearLevel(int yearLevel) { this.yearLevel = yearLevel; } // Setter for Year Level
+    public int getYearLevel() { return yearLevel; }
+    public void setYearLevel(int yearLevel) { this.yearLevel = yearLevel; }
 
-    public UserTable getUser() { return user; } // Getter for User
-    public void setUser(UserTable user) { this.user = user; } // Setter for User
+    public UserTable getUser() { return user; }
+    public void setUser(UserTable user) { this.user = user; }
 
-    public byte[] getPhoto() { return photo; } // Getter for Photo
-    public void setPhoto(byte[] photo) { this.photo = photo; } // Setter for Photo
+    public byte[] getPhoto() { return photo; }
+    public void setPhoto(byte[] photo) { this.photo = photo; }
 
     public List<Attendance> getAttendances() { return attendances; }
     public void setAttendances(List<Attendance> attendances) { this.attendances = attendances; }

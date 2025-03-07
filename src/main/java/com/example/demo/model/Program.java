@@ -3,19 +3,30 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "program")
+@Table(name = "program", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "programName") // ✅ Prevents duplicate programs
+})
 public class Program {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long programID; // Changed from courseID to programID
+    private Long programID;
 
-    @Column(nullable = false)
-    private String programName; // Changed from courseName to programName
+    @Column(nullable = false, length = 100, unique = true) // ✅ Limits name length
+    private String programName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100) // ✅ Limits college name length
     private String college;
 
-    // Getters and Setters
+    // ✅ Default Constructor (required for JPA)
+    public Program() {}
+
+    // ✅ Parameterized Constructor (for easier object creation)
+    public Program(String programName, String college) {
+        this.programName = programName;
+        this.college = college;
+    }
+
+    // ✅ Getters and Setters
     public Long getProgramID() { return programID; }
     public void setProgramID(Long programID) { this.programID = programID; }
 

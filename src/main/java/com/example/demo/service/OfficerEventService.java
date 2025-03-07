@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Officer_Event;
+import com.example.demo.model.OfficerEvent;
 import com.example.demo.model.OfficerEventKey;
 import com.example.demo.repository.OfficerEventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,15 +14,15 @@ public class OfficerEventService {
     @Autowired
     private OfficerEventRepository officerEventRepository;
 
-    public List<Officer_Event> getAllOfficerEvents() {
+    public List<OfficerEvent> getAllOfficerEvents() {
         return officerEventRepository.findAll();
     }
 
-    public Optional<Officer_Event> getOfficerEventById(OfficerEventKey id) {
+    public Optional<OfficerEvent> getOfficerEventById(OfficerEventKey id) {
         return officerEventRepository.findById(id);
     }
 
-    public Officer_Event saveOfficerEvent(Officer_Event officerEvent) {
+    public OfficerEvent saveOfficerEvent(OfficerEvent officerEvent) {
         return officerEventRepository.save(officerEvent);
     }
 

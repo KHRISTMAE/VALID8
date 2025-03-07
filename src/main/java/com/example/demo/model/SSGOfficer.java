@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
 @Table(name = "ssg_officer")
@@ -9,26 +10,36 @@ public class SSGOfficer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long officerID;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100) // ✅ Prevent overly long names
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50) // ✅ Position should have a limit
     private String position;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 100) // ✅ Limit email length
     private String email;
 
     @Column(nullable = false)
-    private String password;
+    private String password; // ✅ Store hashed password
 
-    public SSGOfficer(long officerID, String officerName, String officerPosition, String officerEmail) {
+    // ✅ Default Constructor (Required for JPA)
+    public SSGOfficer() {}
+
+    // ✅ Correct Parameterized Constructor with Password Hashing
+    public SSGOfficer(String name, String position, String email, String password) {
+        this.name = name;
+        this.position = position;
+        this.email = email;
+        this.password = hashPassword(password);
     }
 
-    public SSGOfficer() {
-
+    // ✅ Hash the password using BCrypt
+    private String hashPassword(String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        return passwordEncoder.encode(password);
     }
 
-    // Getters and Setters
+    // ✅ Getters and Setters
     public Long getOfficerID() { return officerID; }
     public void setOfficerID(Long officerID) { this.officerID = officerID; }
 
@@ -42,5 +53,7 @@ public class SSGOfficer {
     public void setEmail(String email) { this.email = email; }
 
     public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public void setPassword(String password) {
+        this.password = hashPassword(password);
+    }
 }

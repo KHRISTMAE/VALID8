@@ -1,10 +1,12 @@
 package com.example.demo.mockAPI;
 
+import com.example.demo.model.*;
+import com.example.demo.model.Attendance;
 import org.springframework.web.bind.annotation.*;
-import com.example.demo.model.Student;
-import com.example.demo.model.SSGOfficer;
-import com.example.demo.model.EventOrganizer;
+import java.time.LocalDateTime;
+
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api")
@@ -13,27 +15,20 @@ public class SchoolController {
     // Mock data for Students
     @GetMapping("/students")
     public List<Student> getAllStudents() {
-        // Sample Response:
-        /*
-        [
-            {
-                "id": 1,
-                "name": "Alice",
-                "gradeLevel": "12th Grade",
-                "email": "alice@example.com"
-            },
-            {
-                "id": 2,
-                "name": "Bob",
-                "gradeLevel": "11th Grade",
-                "email": "bob@example.com"
-            }
-        ]
-        */
-        Student student1 = new Student(1L, "Alice", "12th Grade", "alice@example.com");
-        Student student2 = new Student(2L, "Bob", "11th Grade", "bob@example.com");
+        Program program = new Program("Computer Engineering", "College of Engineering"); // Example program
+        Role studentRole = new Role("Student"); // Create a Role instance for "Student"
+
+// Correcting UserTable instances
+        UserTable user1 = new UserTable("alice@example.com", "Alice123", "ALICE", studentRole);
+        UserTable user2 = new UserTable("bob@example.com", "Bob123", "BOB", studentRole); // Removed 2L and fixed password field
+
+        Student student1 = new Student("Alice", "alice@example.com", "password123", program, 12, user1);
+        Student student2 = new Student("Bob", "bob@example.com", "password456", program, 11, user2);
+
+
         return List.of(student1, student2);
     }
+
 
     // Mock data for SSG Officers
     @GetMapping("/ssg-officers")
@@ -55,8 +50,8 @@ public class SchoolController {
             }
         ]
         */
-        SSGOfficer officer1 = new SSGOfficer(1L, "John Doe", "President", "johndoe@example.com");
-        SSGOfficer officer2 = new SSGOfficer(2L, "Jane Smith", "Vice President", "janesmith@example.com");
+        SSGOfficer officer1 = new SSGOfficer("John Doe", "President", "johndoe@example.com", "john");
+        SSGOfficer officer2 = new SSGOfficer("Jane Smith", "Vice President", "janesmith@example.com", "john");
         return List.of(officer1, officer2);
     }
 
@@ -95,7 +90,12 @@ public class SchoolController {
             "email": "alice@example.com"
         }
         */
-        return new Student(id, "Alice", "12th Grade", "alice@example.com");
+        Program program = new Program("Computer Science", "Engineering College"); // Example program
+        Role studentRole = new Role("Student"); // Example role
+        UserTable user = new UserTable("alice@example.com", "Alice123", "ALICE", studentRole);
+
+// Corrected Student instantiation
+        return new Student("Alice", "alice@example.com", "Alice123", program, 12, user);
     }
 
     // Mock data for getting individual SSG Officer by ID
@@ -110,7 +110,7 @@ public class SchoolController {
             "email": "johndoe@example.com"
         }
         */
-        return new SSGOfficer(id, "John Doe", "President", "johndoe@example.com");
+        return new SSGOfficer("John Doe", "President", "johndoe@example.com", "securePassword123");
     }
 
     // Mock data for getting individual Organizer by ID
@@ -128,17 +128,41 @@ public class SchoolController {
     }
 
     // Mock data for attendance records
-    @GetMapping("/attendance")
     public List<Attendance> getAllAttendance() {
-        Attendance record1 = new Attendance(1L, 101L, 21l, "2025-03-02", "Present");
-        Attendance record2 = new Attendance(2L, 102L, 22l, "2025-03-02", "Absent");
+        // Creating sample Student and Event objects
+        Program program = new Program("Computer Science", "Engineering College");
+        Role studentRole = new Role("Student");
+
+
+        UserTable user1 = new UserTable("alice@example.com", "Alice123", "password123", studentRole);
+        Student student1 = new Student("Alice", "alice@example.com", "password123", program, 12, user1);
+
+        UserTable user2 = new UserTable("bob@example.com", "Bob123", "password123", studentRole);
+        Student student2 = new Student("Bob", "bob@example.com", "password123", program, 11, user2);
+
+        // Fixed EventOrganizer object
+        EventOrganizer organizer = new EventOrganizer(1L, "johndoe@example.com", "securePassword123");
+
+
+// Fixed Event Objects
+        Event event1 = new Event("Seminar on AI", LocalDateTime.of(2025, 3, 2, 10, 0), "Conference Hall", organizer);
+        Event event2 = new Event("Workshop on Robotics", LocalDateTime.of(2025, 3, 2, 14, 0), "Engineering Lab", organizer);
+        // Creating Attendance records
+        Attendance record1 = new Attendance(student1, event1, LocalDateTime.of(2025, 3, 2, 10, 5), "Present");
+        Attendance record2 = new Attendance(student2, event2, LocalDateTime.of(2025, 3, 2, 14, 15), "Absent");
+
         return List.of(record1, record2);
     }
-
     // Mock data for getting individual attendance record by ID
     @GetMapping("/attendance/{id}")
     public Attendance getAttendanceById(@PathVariable Long id) {
-        return new Attendance(id, 101L, 21l, "2025-03-02", "Present");
+        // Create necessary objects first
+        Student student = new Student("Alice", "alice@example.com", "securePassword123", new Program("Computer Science", "Engineering"), 12, new UserTable("alice@example.com", "Alice123", "password123", new Role("Student")));
+        Event event = new Event("Seminar on AI", LocalDateTime.of(2025, 3, 2, 10, 0), "Main Hall", new EventOrganizer(1L, "organizer@example.com", "password123"));
+
+// Return Attendance object with correct parameters
+        return new Attendance(student, event, LocalDateTime.of(2025, 3, 2, 10, 0), "Present");
+
     }
 }
 

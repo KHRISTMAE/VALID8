@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.Officer_Event;
+import com.example.demo.model.OfficerEvent;
 import com.example.demo.model.OfficerEventKey;
 import com.example.demo.service.OfficerEventService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,18 +16,18 @@ public class OfficerEventController {
     private OfficerEventService officerEventService;
 
     @GetMapping
-    public List<Officer_Event> getAllOfficerEvents() {
+    public List<OfficerEvent> getAllOfficerEvents() {
         return officerEventService.getAllOfficerEvents();
     }
 
     @GetMapping("/{officerId}/{eventId}")
-    public Optional<Officer_Event> getOfficerEventById(@PathVariable Long officerId, @PathVariable Long eventId) {
+    public Optional<OfficerEvent> getOfficerEventById(@PathVariable Long officerId, @PathVariable Long eventId) {
         OfficerEventKey id = new OfficerEventKey(officerId, eventId);
         return officerEventService.getOfficerEventById(id);
     }
 
     @PostMapping
-    public Officer_Event createOfficerEvent(@RequestBody Officer_Event officerEvent) {
+    public OfficerEvent createOfficerEvent(@RequestBody OfficerEvent officerEvent) {
         return officerEventService.saveOfficerEvent(officerEvent);
     }
 

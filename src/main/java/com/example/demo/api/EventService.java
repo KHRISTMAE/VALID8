@@ -13,16 +13,16 @@ public class EventService {
     private int eventIdCounter = 1;
 
     public Event createEvent(Event event) {
-        event.setEventID((long) eventIdCounter++); // Fix: Use instance method
+        event.setEventID((long) eventIdCounter++);
         eventList.add(event);
         return event;
     }
 
     public Optional<Event> editEvent(int eventId, Event updatedEvent) {
         for (Event event : eventList) {
-            if (event.getEventID() == eventId) { // Fix: Use instance method
+            if (event.getEventID() == eventId) {
                 event.setEventName(updatedEvent.getEventName());
-                event.setDateTime(updatedEvent.getDateTime());
+                event.setDateAndTime(updatedEvent.getDateAndTime());  // ✅ Fixed setter method
                 event.setLocation(updatedEvent.getLocation());
                 event.setOrganizer(updatedEvent.getOrganizer());
                 return Optional.of(event);
@@ -35,4 +35,3 @@ public class EventService {
         return eventList.removeIf(event -> event.getEventID() == eventId);
     }
 }
-

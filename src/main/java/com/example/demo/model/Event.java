@@ -14,7 +14,7 @@ public class Event {
     private String eventName;
 
     @Column(nullable = false)
-    private LocalDateTime dateAndTime; // Matches ERD attribute
+    private LocalDateTime dateAndTime;
 
     @Column(nullable = false)
     private String location;
@@ -22,6 +22,18 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "organizerID", nullable = false) // FK constraint
     private EventOrganizer organizer;
+
+    // Default constructor (needed for JPA)
+    public Event() {
+    }
+
+    // Parameterized Constructor
+    public Event(String eventName, LocalDateTime dateAndTime, String location, EventOrganizer organizer) {
+        this.eventName = eventName;
+        this.dateAndTime = dateAndTime;
+        this.location = location;
+        this.organizer = organizer;
+    }
 
     // Getters and Setters
     public Long getEventID() { return eventID; }

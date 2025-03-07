@@ -15,7 +15,7 @@ public class Attendance {
     private Student student;
 
     @ManyToOne
-    @JoinColumn(name = "eventID", nullable = false) // Added missing FK
+    @JoinColumn(name = "eventID", nullable = false)
     private Event event;
 
     private LocalDateTime checkInTime;
@@ -25,10 +25,16 @@ public class Attendance {
     @Column(nullable = false)
     private String status;
 
-    public Attendance(Long attendanceID, long student, String studentName,String dateTime, String status) {
-        this.attendanceID = attendanceID;
-        this.status = status;
+    // Default constructor (needed for JPA)
+    public Attendance() {
+    }
 
+    // Parameterized Constructor
+    public Attendance(Student student, Event event, LocalDateTime checkInTime, String status) {
+        this.student = student;
+        this.event = event;
+        this.checkInTime = checkInTime;
+        this.status = status;
     }
 
     // Getters and Setters
@@ -38,8 +44,8 @@ public class Attendance {
     public Student getStudent() { return student; }
     public void setStudent(Student student) { this.student = student; }
 
-    public Event getEvent() { return event; } // Getter for Event FK
-    public void setEvent(Event event) { this.event = event; } // Setter for Event FK
+    public Event getEvent() { return event; }
+    public void setEvent(Event event) { this.event = event; }
 
     public LocalDateTime getCheckInTime() { return checkInTime; }
     public void setCheckInTime(LocalDateTime checkInTime) { this.checkInTime = checkInTime; }

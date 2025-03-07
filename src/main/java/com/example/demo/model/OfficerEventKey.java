@@ -5,32 +5,34 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-public class OfficerEventKey implements Serializable {
+public class OfficerEventKey implements Serializable { // ✅ MUST IMPLEMENT Serializable
     private Long officerID;
     private Long eventID;
 
-    // Constructors
+    // ✅ Default Constructor (Required for JPA)
     public OfficerEventKey() {}
 
+    // ✅ Parameterized Constructor
     public OfficerEventKey(Long officerID, Long eventID) {
         this.officerID = officerID;
         this.eventID = eventID;
     }
 
-    // Getters and Setters
+    // ✅ Getters and Setters
     public Long getOfficerID() { return officerID; }
     public void setOfficerID(Long officerID) { this.officerID = officerID; }
 
     public Long getEventID() { return eventID; }
     public void setEventID(Long eventID) { this.eventID = eventID; }
 
-    // Override equals() and hashCode()
+    // ✅ Override equals() and hashCode() for Hibernate
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OfficerEventKey that = (OfficerEventKey) o;
-        return Objects.equals(officerID, that.officerID) && Objects.equals(eventID, that.eventID);
+        return Objects.equals(officerID, that.officerID) &&
+                Objects.equals(eventID, that.eventID);
     }
 
     @Override
