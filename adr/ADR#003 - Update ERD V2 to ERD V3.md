@@ -1,6 +1,6 @@
-**Architecture Decision Record #002**  
-**Title: Updated ERD verson 2 to ERD version 3**  
-**Status:** Approved  
+# Architecture Decision Record #003
+## Title: Updated ERD verson 2 to ERD version 3**  
+## Status:** Approved  
 
 ---  
 
@@ -55,7 +55,7 @@ We updated the **ERD** with the following changes:
 ---  
 
 ### **ERD Version 3 - Updated Diagram**  
-(Insert link to latest ERD image or repository)
+(https://github.com/KHRISTMAE/VALID8/blob/main/ERD/ERD%20V.3.jpg)
 
 ---  
 
