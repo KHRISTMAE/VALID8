@@ -2,9 +2,10 @@
 
 ## Title: ERD Enhancement for Facial Recognition Management System
 
-## Status
-
-Approved
+## Status: 
+- ❌ Superseded by ADR #003
+## Reason:
+- ERD v.3 introduced refinements, such as renaming "Course" to "Program," enhancing attendance tracking, and improving user-role relationships. ADR #002 now reflects the latest architecture.
 
 ## Metadata
 
