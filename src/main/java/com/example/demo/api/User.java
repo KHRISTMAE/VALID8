@@ -1,4 +1,4 @@
-package com.example.demo.api;
+/*package com.example.demo.api;
 
 import jakarta.persistence.*;
 
@@ -82,4 +82,5 @@ public class User {
         this.position = position;
     }
 
-}
+}*/
+

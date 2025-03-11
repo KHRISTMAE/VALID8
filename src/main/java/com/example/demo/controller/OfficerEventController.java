@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+/*package com.example.demo.controller;
 
 import com.example.demo.model.OfficerEvent;
 import com.example.demo.model.OfficerEventKey;
@@ -36,4 +36,4 @@ public class OfficerEventController {
         OfficerEventKey id = new OfficerEventKey(officerId, eventId);
         officerEventService.deleteOfficerEvent(id);
     }
-}
+}*/

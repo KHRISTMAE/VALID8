@@ -1,4 +1,4 @@
-package com.example.demo.api;
+/*package com.example.demo.api;
 
 public class StudentDTO {
     private String name;
@@ -6,5 +6,5 @@ public class StudentDTO {
     private String password;
     private int yearLevel;
     private String course;
-}
+}*/
 

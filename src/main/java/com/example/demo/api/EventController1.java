@@ -1,4 +1,4 @@
-package com.example.demo.api;
+/*package com.example.demo.api;
 
 import com.example.demo.model.Event;
 import org.springframework.http.ResponseEntity;
@@ -56,4 +56,4 @@ public class EventController1 {
             return ResponseEntity.badRequest().body(Map.of("error", "Event not found"));
         }
     }
-}
+}*/

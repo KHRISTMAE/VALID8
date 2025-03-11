@@ -11,6 +11,11 @@
         <module name="event-attendance" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="event-attendance (1)" target="18" />
+      <module name="event-attendance-api" target="17" />
+      <module name="event-attendance-service" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
