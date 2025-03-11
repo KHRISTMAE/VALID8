@@ -1,12 +1,10 @@
 package com.example.demo.repository;
 
-import com.example.demo.model.UserRoles;
+import com.example.demo.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import java.util.List;
+import java.util.Optional;
 
-@Repository
-public interface UserRolesRepository extends JpaRepository<UserRoles, Long> {
-    List<UserRoles> findByUserUserID(Long userID);
-    List<UserRoles> findByRoleRoleID(Long roleID);
+public interface UserRolesRepository extends JpaRepository<Role, Long> {
+    Optional<Role> findByRoleName(String roleName); // ADD THIS!
 }
+
