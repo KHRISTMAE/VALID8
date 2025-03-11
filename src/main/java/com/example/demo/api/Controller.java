@@ -1,4 +1,4 @@
-package com.example.demo.api;
+/*package com.example.demo.api;
 
 import com.example.demo.model.EventOrganizer;
 import com.example.demo.repository.EventOrganizerRepository;
@@ -169,4 +169,4 @@ public class Controller {
     public void deleteOrganizer(@PathVariable Long id) {
         organizerRepository.deleteById(id);
     }
-}
+}*/

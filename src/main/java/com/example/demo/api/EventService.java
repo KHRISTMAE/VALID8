@@ -1,4 +1,4 @@
-package com.example.demo.api;
+/* package com.example.demo.api;
 
 import com.example.demo.model.Event;
 import org.springframework.stereotype.Service;
@@ -34,4 +34,4 @@ public class EventService {
     public boolean deleteEvent(int eventId) {
         return eventList.removeIf(event -> event.getEventID() == eventId);
     }
-}
+}*/

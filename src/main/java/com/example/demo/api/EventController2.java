@@ -1,4 +1,4 @@
-package com.example.demo.api;
+/*package com.example.demo.api;
 
 import com.example.demo.model.Event;
 import com.example.demo.repository.EventRepository;
@@ -53,4 +53,4 @@ public class EventController2 {
         eventRepository.deleteById(id);
         return "Event successfully deleted.";
     }
-}
+}*/
