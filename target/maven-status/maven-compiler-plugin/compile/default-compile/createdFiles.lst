@@ -28,6 +28,7 @@ com\example\demo\repository\RoleRepository.class
 com\example\demo\config\CorsConfig$1.class
 com\example\demo\model\Student.class
 com\example\demo\repository\OfficerEventRepository.class
+com\example\demo\config\DataSeeder.class
 com\example\demo\repository\EventOrganizerRepository.class
 com\example\demo\model\Attendance.class
 com\example\demo\repository\ProgramRepository.class
