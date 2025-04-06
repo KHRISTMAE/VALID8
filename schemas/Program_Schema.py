@@ -1,13 +1,22 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
+
+# Base schema for common fields
 class ProgramBase(BaseModel):
-    programName: str = Field(..., example="Computer Science")
+    programName: str
+    college: str
 
+# Create schema: For creating a new Program
 class ProgramCreate(ProgramBase):
-    college: str  # Only need to define college, programName is inherited
+    pass
 
+# Update schema: For updating an existing Program
+class ProgramUpdate(ProgramBase):
+    pass
+
+# Response schema: For returning Program data
 class ProgramResponse(ProgramBase):
-    id: int  # The ID returned in the response, could be `programID`
+    programID: str
 
     class Config:
-        from_attributes = True  # Allows ORM models to be returned directly
+        from_attributes = True  # This allows SQLAlchemy ORM models to be used

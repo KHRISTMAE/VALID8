@@ -1,37 +1,46 @@
+# controllers.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from CRUD import create_attendance, get_attendance, get_attendance_by_id, update_attendance, delete_attendance
+from schemas import AttendanceCreate, AttendanceUpdate, AttendanceOut
 from Database.database import get_db
-from Model.Attendance import Attendance
-from schemas.Attendance_Schema import AttendanceCreate, AttendanceResponse
-from Repository.AttendanceRepository import AttendanceRepository
 
-router = APIRouter(prefix="/attendances", tags=["Attendances"])
+router = APIRouter()
 
-@router.post("/", response_model=AttendanceResponse)
-def create_attendance(att_create: AttendanceCreate, db: Session = Depends(get_db)):
-    repo = AttendanceRepository(db)
-    new_att = Attendance(user_id=att_create.user_id, event_id=att_create.event_id)
-    created = repo.create(new_att)
-    return created
+# Create a new Attendance record
+@router.post("/createAttendances/", response_model=AttendanceOut)
+def create_attendance_record(attendance: AttendanceCreate, db: Session = Depends(get_db)):
+    return create_attendance(db, attendance)
 
-@router.get("/", response_model=list[AttendanceResponse])
-def get_all_attendances(db: Session = Depends(get_db)):
-    repo = AttendanceRepository(db)
-    return repo.get_all()
 
-@router.get("/{attendance_id}", response_model=AttendanceResponse)
-def get_attendance(attendance_id: int, db: Session = Depends(get_db)):
-    repo = AttendanceRepository(db)
-    attendance = repo.get_by_id(attendance_id)
-    if not attendance:
-        raise HTTPException(status_code=404, detail="Attendance not found")
+# Get all Attendance records
+@router.get("/readAttendances/", response_model=list[AttendanceOut])
+def read_attendances(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    return get_attendance(db, skip=skip, limit=limit)
+
+
+# Get an Attendance record by ID
+@router.get("/readAllAttendances/{attendanceID}", response_model=AttendanceOut)
+def read_attendance(attendanceID: int, db: Session = Depends(get_db)):
+    attendance = get_attendance_by_id(db, attendanceID)
+    if attendance is None:
+        raise HTTPException(status_code=404, detail="Attendance record not found")
     return attendance
 
-@router.delete("/{attendance_id}")
-def delete_attendance(attendance_id: int, db: Session = Depends(get_db)):
-    repo = AttendanceRepository(db)
-    attendance = repo.get_by_id(attendance_id)
-    if not attendance:
-        raise HTTPException(status_code=404, detail="Attendance not found")
-    repo.delete(attendance)
-    return {"message": "Attendance deleted successfully"}
+
+# Update an Attendance record
+@router.put("/updateAttendances/{attendanceID}", response_model=AttendanceOut)
+def update_attendance_record(attendanceID: int, attendance: AttendanceUpdate, db: Session = Depends(get_db)):
+    updated_attendance = update_attendance(db, attendanceID, attendance)
+    if updated_attendance is None:
+        raise HTTPException(status_code=404, detail="Attendance record not found")
+    return updated_attendance
+
+
+# Delete an Attendance record
+@router.delete("/deleteAttendances/{attendanceID}", response_model=AttendanceOut)
+def delete_attendance_record(attendanceID: int, db: Session = Depends(get_db)):
+    deleted_attendance = delete_attendance(db, attendanceID)
+    if deleted_attendance is None:
+        raise HTTPException(status_code=404, detail="Attendance record not found")
+    return deleted_attendance

@@ -1,38 +1,49 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from Database.database import get_db
-from Model.OfficerEvent import OfficerEvent
-from schemas.OfficerEvent_Schema import OfficerEventCreate, OfficerEventResponse
-from Repository.OfficerEventRepository import OfficerEventRepository
-from Database.database import get_db  # Dependency injection sa DB session
+from CRUD import create_officer_event, get_officer_events, get_officer_event, update_officer_event, delete_officer_event
+from schemas import OfficerEventCreate, OfficerEventUpdate, OfficerEventResponse
+from Database.database import SessionLocal
 
-router = APIRouter(prefix="/officer-events", tags=["OfficerEvents"])
+router = APIRouter()
 
+# Dependency to get the database session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# Create a new OfficerEvent
 @router.post("/", response_model=OfficerEventResponse)
-def create_officer_event(data: OfficerEventCreate, db: Session = Depends(get_db)):
-    repo = OfficerEventRepository(db)
-    new_record = OfficerEvent(officer_id=data.officer_id, event_id=data.event_id)
-    created = repo.create(new_record)
-    return created
+def create_officer_event_route(officer_event: OfficerEventCreate, db: Session = Depends(get_db)):
+    return create_officer_event(db=db, officer_event=officer_event)
 
+# Get all OfficerEvents
 @router.get("/", response_model=list[OfficerEventResponse])
-def get_all_officer_events(db: Session = Depends(get_db)):
-    repo = OfficerEventRepository(db)
-    return repo.get_all()
+def get_officer_events_route(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    return get_officer_events(db=db, skip=skip, limit=limit)
 
-@router.get("/{officer_id}/{event_id}", response_model=OfficerEventResponse)
-def get_officer_event(officer_id: int, event_id: int, db: Session = Depends(get_db)):
-    repo = OfficerEventRepository(db)
-    record = repo.get_by_ids(officer_id, event_id)
-    if not record:
+# Get an OfficerEvent by officerID and eventID
+@router.get("/{officerID}/{eventID}", response_model=OfficerEventResponse)
+def get_officer_event_route(officerID: int, eventID: int, db: Session = Depends(get_db)):
+    db_officer_event = get_officer_event(db=db, officerID=officerID, eventID=eventID)
+    if db_officer_event is None:
         raise HTTPException(status_code=404, detail="OfficerEvent not found")
-    return record
+    return db_officer_event
 
-@router.delete("/{officer_id}/{event_id}")
-def delete_officer_event(officer_id: int, event_id: int, db: Session = Depends(get_db)):
-    repo = OfficerEventRepository(db)
-    record = repo.get_by_ids(officer_id, event_id)
-    if not record:
+# Update an OfficerEvent by officerID and eventID
+@router.put("/{officerID}/{eventID}", response_model=OfficerEventResponse)
+def update_officer_event_route(officerID: int, eventID: int, officer_event: OfficerEventUpdate, db: Session = Depends(get_db)):
+    db_officer_event = update_officer_event(db=db, officerID=officerID, eventID=eventID, officer_event=officer_event)
+    if db_officer_event is None:
         raise HTTPException(status_code=404, detail="OfficerEvent not found")
-    repo.delete(record)
-    return {"message": "OfficerEvent deleted successfully"}
+    return db_officer_event
+
+# Delete an OfficerEvent by officerID and eventID
+@router.delete("/{officerID}/{eventID}", response_model=OfficerEventResponse)
+def delete_officer_event_route(officerID: int, eventID: int, db: Session = Depends(get_db)):
+    db_officer_event = delete_officer_event(db=db, officerID=officerID, eventID=eventID)
+    if db_officer_event is None:
+        raise HTTPException(status_code=404, detail="OfficerEvent not found")
+    return db_officer_event

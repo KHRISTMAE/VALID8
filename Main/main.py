@@ -1,12 +1,14 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.exc import OperationalError
 from fastapi.middleware.cors import CORSMiddleware
-from Database.database import Base, engine
+from Database.database import Base, SessionLocal, engine
 from Database.auto_imports_model import import_all_models
 from sqlalchemy.sql import text
-import logging
+from Database.database import get_db
+from Database.seed import create_admin_user
+import logging, time
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -22,6 +24,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Root route
 @app.get("/")
@@ -51,39 +54,9 @@ def startup():
     finally:
         db.close()
 
-# Verify the tables in the database (optional)
-@app.get("/check-db")
-def check_db():
-    try:
-        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-        db = SessionLocal()
-        
-        # List tables in the database
-        from sqlalchemy import inspect
-        inspector = inspect(engine)
-        tables = inspector.get_table_names()
-        
-        db.close()
-        return {"message": "Database connection successful!", "tables": tables}
-    except Exception as e:
-        return {"message": f"Error connecting to the database: {str(e)}"}
-
-# Dummy endpoints
-@app.get("/Engr")
-def read_abby():
-    return {"message": "Engr. Abby Reyes"}
-
-@app.get("/api/name")
-def read_name():
-    return {"message": "LAIZAH ESPINAS ALBAIRA"}
-
 @app.get("/api/hello")
 def read_hello():
     return {"message": "Hi Engr. Maricon Denber 'Nonchalant' Gahisan"}
-
-@app.get("/kris")
-def read_kris():
-    return {"message": "Kriscel love Angkit, Angkit gipiskat!"}
 
 # Login Model
 from pydantic import BaseModel
@@ -146,18 +119,19 @@ from Controllers import SSGOfficer_Controller
 from Controllers import Role_Controller
 from Controllers import UserRoles_Controller
 from Controllers import Event_Controller
+from Controllers import EventOrganizer_Controller
 from Controllers import OfficerEvent_Controller
-from Controllers import Organizer_Cotroller
 from Controllers import UserTable_Controller
 
 # Including all routers
 app.include_router(Attendance_Controller.router)
 app.include_router(Event_Controller.router)
 app.include_router(Role_Controller.router)
-app.include_router(Organizer_Cotroller.router)
+app.include_router(EventOrganizer_Controller.router)
 app.include_router(Program_Controller.router)
 app.include_router(UserRoles_Controller.router)
 app.include_router(Student_Controller.router)
 app.include_router(UserTable_Controller.router)
 app.include_router(SSGOfficer_Controller.router)
 app.include_router(OfficerEvent_Controller.router)
+

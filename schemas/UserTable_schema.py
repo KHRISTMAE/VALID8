@@ -1,14 +1,14 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
-class UserCreate(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
+class UserTableBase(BaseModel):
+    roleID: int
+    role: str
 
-class UserResponse(BaseModel):
+class UserTableCreate(UserTableBase):
+    pass
+
+class UserTable(UserTableBase):
     userID: int
-    username: str
-    email: EmailStr
 
     class Config:
-        from_Attributes = True
+        from_attributes = True  # This allows Pydantic to work with SQLAlchemy models directly

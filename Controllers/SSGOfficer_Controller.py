@@ -1,41 +1,49 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from Database.database import get_db
-from Model.SSGOfficer import SSGOfficer
-from schemas.SSGOfficer_Schema import SSGOfficerCreate, SSGOfficerLogin, SSGOfficerResponse
+from CRUD import create_ssg_officer, get_ssg_officers, get_ssg_officer, update_ssg_officer, delete_ssg_officer
+from schemas import SSGOfficerCreate, SSGOfficerUpdate, SSGOfficerResponse
+from Database.database import SessionLocal
 
-router = APIRouter(prefix="/ssg-officers", tags=["SSG Officers"])
+router = APIRouter()
 
-@router.post("/register", response_model=SSGOfficerResponse)
-def register_officer(data: SSGOfficerCreate, db: Session = Depends(get_db)):
-    existing = db.query(SSGOfficer).filter(SSGOfficer.email == data.email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered.")
+# Dependency to get the database session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-    new_officer = SSGOfficer(
-        name=data.name,
-        position=data.position,
-        email=data.email,
-        password=data.password
-    )
-    db.add(new_officer)
-    db.commit()
-    db.refresh(new_officer)
-    return new_officer
+# Create a new officer
+@router.post("/", response_model=SSGOfficerResponse)
+def create_officer_route(officer: SSGOfficerCreate, db: Session = Depends(get_db)):
+    return create_ssg_officer(db=db, officer=officer)
 
-@router.post("/login")
-def login_officer(data: SSGOfficerLogin, db: Session = Depends(get_db)):
-    officer = db.query(SSGOfficer).filter(SSGOfficer.email == data.email).first()
-    if not officer or not officer.check_password(data.password):
-        raise HTTPException(status_code=401, detail="Invalid credentials.")
-    return {
-        "message": "Login successful",
-        "officerID": officer.officerID,
-        "name": officer.name,
-        "position": officer.position
-    }
-
+# Get all officers
 @router.get("/", response_model=list[SSGOfficerResponse])
-def get_all_officers(db: Session = Depends(get_db)):
-    officers = db.query(SSGOfficer).all()
-    return officers
+def get_officers_route(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    return get_ssg_officers(db=db, skip=skip, limit=limit)
+
+# Get officer by officerID
+@router.get("/{officerID}", response_model=SSGOfficerResponse)
+def get_officer_route(officerID: int, db: Session = Depends(get_db)):
+    db_officer = get_ssg_officer(db=db, officerID=officerID)
+    if db_officer is None:
+        raise HTTPException(status_code=404, detail="Officer not found")
+    return db_officer
+
+# Update officer details
+@router.put("/{officerID}", response_model=SSGOfficerResponse)
+def update_officer_route(officerID: int, officer: SSGOfficerUpdate, db: Session = Depends(get_db)):
+    db_officer = update_ssg_officer(db=db, officerID = officerID, officer=officer)
+    if db_officer is None:
+        raise HTTPException(status_code=404, detail="Officer not found")
+    return db_officer
+
+# Delete officer by officerID
+@router.delete("/{officerID}", response_model=SSGOfficerResponse)
+def delete_officer_route(officerID: int, db: Session = Depends(get_db)):
+    db_officer = delete_ssg_officer(db=db, officerID=officerID)
+    if db_officer is None:
+        raise HTTPException(status_code=404, detail="Officer not found")
+    return db_officer

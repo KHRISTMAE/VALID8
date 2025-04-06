@@ -1,16 +1,27 @@
+# schemas.py
 from pydantic import BaseModel
 from datetime import datetime
 
-class AttendanceBase(BaseModel):
-    user_id: int
-    event_id: int
+class AttendanceCreate(BaseModel):
+    studentID: int
+    eventID: int
+    checkInTime: datetime = None
+    status: str = ''
 
-class AttendanceCreate(AttendanceBase):
-    pass
+class AttendanceUpdate(BaseModel):
+    studentID: int
+    eventID: int
+    checkInTime: datetime = None
+    status: str = ''
 
-class AttendanceResponse(AttendanceBase):
-    id: int
-    timestamp: datetime
+class AttendanceOut(BaseModel):
+    attendanceID: int
+    studentID: int
+    eventID: int
+    checkInTime: datetime
+    midEventCheckpoint: datetime = None
+    checkOutTime: datetime = None
+    status: str
 
     class Config:
-        from_attributes = True  # allows SQLAlchemy models as responses
+        from_attributes = True

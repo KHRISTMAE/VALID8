@@ -1,18 +1,24 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
-class EventCreate(BaseModel):
+class EventBase(BaseModel):
     eventName: str
     dateAndTime: datetime
     location: str
     organizerID: int
 
-class EventResponse(BaseModel):
+class EventCreate(EventBase):
+    pass
+
+class EventUpdate(EventBase):
+    eventName: Optional[str] = None
+    dateAndTime: Optional[datetime] = None
+    location: Optional[str] = None
+    organizerID: Optional[int] = None
+
+class EventResponse(EventBase):
     eventID: int
-    eventName: str
-    dateAndTime: datetime
-    location: str
-    organizerID: int
 
     class Config:
-        from_attributes = True
+        from_attributes = True  # This is necessary for reading data from the ORM models

@@ -1,63 +1,48 @@
+# controllers/user_roles_controller.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
-
-from Database.database import get_db
-from Model.UserRoles import UserRoles
-from Repository.UserRolesRepository import UserRolesRepository
-from schemas import UserRolesCreate, UserRolesResponse, UserRolesUpdate  # i-define nato ni sa schemas.py
+from Database.database import SessionLocal
+from schemas import UserRoleCreate, UserRoleUpdate, UserRoleInDB
+from CRUD  import UserRoles_CRUD as crud
 
 router = APIRouter(
     prefix="/user_roles",
-    tags=["UserRoles"]
+    tags=["User Roles"]
 )
 
-# Create UserRole
-@router.post("/", response_model=UserRolesResponse)
-def create_user_role(user_role_data: UserRolesCreate, db: Session = Depends(get_db)):
-    repo = UserRolesRepository(db)
-    user_role = UserRoles(**user_role_data.dict())
-    created_user_role = repo.create(user_role)
-    return created_user_role
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-# Get All UserRoles
-@router.get("/", response_model=List[UserRolesResponse])
-def get_all_user_roles(db: Session = Depends(get_db)):
-    repo = UserRolesRepository(db)
-    return repo.get_all()
+@router.post("/", response_model=UserRoleInDB)
+def create_user_role(user_role: UserRoleCreate, db: Session = Depends(get_db)):
+    return crud.create_user_role(db, user_role)
 
-# Get UserRoles by User ID
-@router.get("/user/{user_id}", response_model=List[UserRolesResponse])
-def get_user_roles_by_user_id(user_id: int, db: Session = Depends(get_db)):
-    repo = UserRolesRepository(db)
-    return repo.get_by_user_id(user_id)
-
-# Get UserRoles by Role ID
-@router.get("/role/{role_id}", response_model=List[UserRolesResponse])
-def get_user_roles_by_role_id(role_id: int, db: Session = Depends(get_db)):
-    repo = UserRolesRepository(db)
-    return repo.get_by_role_id(role_id)
-
-# Update UserRole
-@router.put("/{user_role_id}", response_model=UserRolesResponse)
-def update_user_role(user_role_id: int, update_data: UserRolesUpdate, db: Session = Depends(get_db)):
-    repo = UserRolesRepository(db)
-    existing_user_role = db.query(UserRoles).filter(UserRoles.id == user_role_id).first()
-    if not existing_user_role:
+@router.get("/{userRoleID}", response_model=UserRoleInDB)
+def read_user_role(userRoleID: int, db: Session = Depends(get_db)):
+    user_role = crud.get_user_role(db, userRoleID)
+    if user_role is None:
         raise HTTPException(status_code=404, detail="UserRole not found")
-    for key, value in update_data.dict(exclude_unset=True).items():
-        setattr(existing_user_role, key, value)
-    db.commit()
-    db.refresh(existing_user_role)
-    return existing_user_role
+    return user_role
 
-# Delete UserRole
-@router.delete("/{user_role_id}")
+@router.get("/", response_model=list[UserRoleInDB])
+def read_all_user_roles(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    return crud.get_all_user_roles(db, skip, limit)
+
+@router.put("/{userRoleID}", response_model=UserRoleInDB)
+def update_user_role(userRoleID: int, user_role_update: UserRoleUpdate, db: Session = Depends(get_db)):
+    user_role = crud.update_user_role(db, userRoleID, user_role_update)
+    if user_role is None:
+        raise HTTPException(status_code=404, detail="UserRole not found")
+    return user_role
+
+@router.delete("/{userRoleID}", response_model=UserRoleInDB)
 def delete_user_role(user_role_id: int, db: Session = Depends(get_db)):
-    repo = UserRolesRepository(db)
-    user_role = db.query(UserRoles).filter(UserRoles.id == user_role_id).first()
-    if not user_role:
+    user_role = crud.delete_user_role(db, user_role_id)
+    if user_role is None:
         raise HTTPException(status_code=404, detail="UserRole not found")
-    db.delete(user_role)
-    db.commit()
-    return {"message": "UserRole deleted successfully"}
+    return user_role

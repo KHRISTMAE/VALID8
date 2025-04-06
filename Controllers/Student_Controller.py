@@ -1,126 +1,51 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from Model.Student import Student
-from schemas.Student_Schema import StudentCreate, StudentResponse, StudentUpdate, PasswordUpdate
-from Database.database import get_db
-from typing import List
-import logging
-from passlib.context import CryptContext
+import CRUD
+from Database.database import SessionLocal
+from schemas import StudentCreate, StudentUpdate, StudentBase
+from Model import Student as StudentModel  # Make sure you import the correct model
 
-router = APIRouter(
-    prefix="/student",
-    tags=["Student"]
-)
+router = APIRouter()
 
-# Password hashing setup
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# Logger setup
-logging.basicConfig(level=logging.INFO)
-
-# ✅ Create a new student (without requiring userID, password hashed)
-@router.post("/", response_model=StudentResponse, status_code=status.HTTP_201_CREATED)
-def create_student(student: StudentCreate, db: Session = Depends(get_db)):
+# Dependency to get the database session
+def get_db():
+    db = SessionLocal()
     try:
-        logging.info(f"Received student data: {student.dict()}")
+        yield db
+    finally:
+        db.close()
 
-        # Check if email already exists
-        existing = db.query(Student).filter(Student.email == student.email).first()
-        if existing:
-            raise HTTPException(status_code=400, detail="Email already registered")
+# Create a new student
+@router.post("/students/", response_model=StudentBase)
+def create_student_view(student: StudentCreate, db: Session = Depends(get_db)):
+    return CRUD.create_student(db, student.studentName, student.email, student.password, student.programID, student.yearLevel)
 
-        # Hash the password before storing
-        hashed_password = pwd_context.hash(student.password)
-
-        # Get the latest userID from UserTable
-        last_user = db.query(Student).order_by(Student.userID.desc()).first()
-        new_user_id = (last_user.userID + 1) if last_user else 1  # Auto-increment logic
-
-        new_student = Student(
-            studentName=student.studentName,
-            email=student.email,
-            password=hashed_password,  # Hashed password
-            programID=student.programID,
-            yearLevel=student.yearLevel
-        )
-        new_student.userID = new_user_id  # Assign generated userID
-
-        db.add(new_student)
-        db.commit()
-        db.refresh(new_student)
-
-        return new_student
-
-    except Exception as e:
-        logging.error(f"Error creating student: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-# ✅ Get all students
-@router.get("/", response_model=List[StudentResponse])
-def get_students(db: Session = Depends(get_db)):
-    students = db.query(Student).all()
-    if not students:
-        raise HTTPException(status_code=404, detail="No students found")
-    return students
-
-
-# ✅ Get single student by ID
-@router.get("/{student_id}", response_model=StudentResponse)
-def get_student(student_id: int, db: Session = Depends(get_db)):
-    student = db.query(Student).filter(Student.studentID == student_id).first()
-    if not student:
+# Get student by ID
+@router.get("/students/{studentID}", response_model=StudentBase)
+def get_student_view(studentID: int, db: Session = Depends(get_db)):
+    db_student = CRUD.get_student_by_id(db, studentID)
+    if db_student is None:
         raise HTTPException(status_code=404, detail="Student not found")
-    return student
+    return StudentBase.from_orm(db_student)  # Ensure it returns the Pydantic model
 
+# Get a list of students
+@router.get("/students/", response_model=list[StudentBase])
+def get_students_view(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    students = CRUD.get_students(db, skip=skip, limit=limit)
+    return [StudentBase.from_orm(student) for student in students]  # Return a list of Pydantic models
 
-# ✅ Delete student
-@router.delete("/{student_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_student(student_id: int, db: Session = Depends(get_db)):
-    student = db.query(Student).filter(Student.studentID == student_id).first()
-    if not student:
+# Update student information
+@router.put("/students/{studentID}", response_model=StudentBase)
+def update_student_view(studentID: int, student: StudentUpdate, db: Session = Depends(get_db)):
+    db_student = CRUD.update_student(db, studentID, student.studentName, student.email, student.programID, student.yearLevel)
+    if db_student is None:
         raise HTTPException(status_code=404, detail="Student not found")
+    return db_student
 
-    db.delete(student)
-    db.commit()
-    logging.info(f"Student {student_id} deleted successfully.")
-    return {"message": "Student deleted successfully"}
-
-
-# ✅ Update student info (only name, email, year level, and programID)
-@router.put("/{student_id}", response_model=StudentResponse)
-def update_student(student_id: int, updated_data: StudentUpdate, db: Session = Depends(get_db)):
-    student = db.query(Student).filter(Student.studentID == student_id).first()
-    if not student:
+# Delete student by ID
+@router.delete("/students/{studentID}", response_model=StudentBase)
+def delete_student_view(studentID: int, db: Session = Depends(get_db)):
+    db_student = CRUD.delete_student(db, studentID)
+    if db_student is None:
         raise HTTPException(status_code=404, detail="Student not found")
-
-    # Ensure email is not used by another student
-    email_exists = db.query(Student).filter(Student.email == updated_data.email, Student.studentID != student_id).first()
-    if email_exists:
-        raise HTTPException(status_code=400, detail="Email already in use by another student")
-
-    student.studentName = updated_data.studentName
-    student.email = updated_data.email
-    student.yearLevel = updated_data.yearLevel
-    student.programID = updated_data.programID
-
-    db.commit()
-    db.refresh(student)
-
-    return student
-
-
-# ✅ Update student password (separate route for security)
-@router.put("/{student_id}/password", status_code=status.HTTP_200_OK)
-def update_student_password(student_id: int, password_update: PasswordUpdate, db: Session = Depends(get_db)):
-    student = db.query(Student).filter(Student.studentID == student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="Student not found")
-
-    # Hash new password
-    student.password = pwd_context.hash(password_update.new_password)
-
-    db.commit()
-    db.refresh(student)
-
-    return {"message": "Password updated successfully"}
+    return db_student

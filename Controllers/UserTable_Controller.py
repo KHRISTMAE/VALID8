@@ -1,49 +1,44 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from Database.database import get_db
-from Model.UserTable import UserTable
-from schemas.UserTable_schema import UserCreate, UserResponse
-from Repository.UserTableRepository import UserTableRepository
+from CRUD import UserTable_CRUD as crud_user_table
+from schemas import UserTable as UserTableSchema
+from Database.database import SessionLocal
 
-router = APIRouter(
-    prefix="/users",
-    tags=["Users"]
-)
+router = APIRouter()
 
-@router.post("/", response_model=UserResponse)
-def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
-    repo = UserTableRepository(db)
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-    existing_user = repo.get_by_email(user_data.email)
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+@router.post("/users/", response_model=UserTableSchema)
+def create_user(user: UserTableSchema, db: Session = Depends(get_db)):
+    db_user = crud_user_table.create_user(db, user.roleID, user.role)
+    return db_user
 
-    new_user = UserTable(
-        username=user_data.username,
-        email=user_data.email,
-        password=user_data.password  # Note: Hash ni sa real app
-    )
-    created_user = repo.create(new_user)
-    return created_user
+@router.get("/users/", response_model=list[UserTableSchema])
+def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    return crud_user_table.get_users(db, skip=skip, limit=limit)
 
-@router.get("/", response_model=list[UserResponse])
-def get_all_users(db: Session = Depends(get_db)):
-    repo = UserTableRepository(db)
-    return repo.get_all()
-
-@router.get("/{user_id}", response_model=UserResponse)
-def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
-    repo = UserTableRepository(db)
-    user = repo.get_by_id(user_id)
-    if not user:
+@router.get("/users/{userID}", response_model=UserTableSchema)
+def read_user(userID: int, db: Session = Depends(get_db)):
+    db_user = crud_user_table.get_user_by_id(db, userID)
+    if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return db_user
 
-@router.delete("/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(get_db)):
-    repo = UserTableRepository(db)
-    user = repo.get_by_id(user_id)
-    if not user:
+@router.put("/users/{userID}", response_model=UserTableSchema)
+def update_user(userID: int, user: UserTableSchema, db: Session = Depends(get_db)):
+    db_user = crud_user_table.update_user(db, userID, user.roleID, user.role)
+    if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    repo.delete(user)
-    return {"message": "User deleted successfully"}
+    return db_user
+
+@router.delete("/users/{userID}", response_model=UserTableSchema)
+def delete_user(userID: int, db: Session = Depends(get_db)):
+    db_user = crud_user_table.delete_user(db, userID)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user

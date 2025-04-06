@@ -1,20 +1,17 @@
 from pydantic import BaseModel
 
-# Schema for creating a UserRole
-class UserRolesCreate(BaseModel):
+class UserRoleBase(BaseModel):
     userID: int
     roleID: int
 
-# Schema for updating a UserRole
-class UserRolesUpdate(BaseModel):
-    userID: int
-    roleID: int
+class UserRoleCreate(UserRoleBase):
+    pass
 
-# Schema for response
-class UserRolesResponse(BaseModel):
-    id: int
-    userID: int
-    roleID: int
+class UserRoleUpdate(UserRoleBase):
+    pass
+
+class UserRoleInDB(UserRoleBase):
+    userRoleID: int
 
     class Config:
         from_attributes = True

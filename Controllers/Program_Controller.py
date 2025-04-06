@@ -1,32 +1,49 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from Database.database import get_db
-from fastapi import APIRouter
-from Repository.ProgramRepository import ProgramRepository
-from schemas.Program_Schema import ProgramCreate, ProgramResponse
+from CRUD import create_program, get_programs, get_program, update_program, delete_program
+from schemas import ProgramCreate, ProgramUpdate, ProgramResponse
+from Database.database import SessionLocal
 
-router = APIRouter(prefix="/programs", tags=["Programs"])
+router = APIRouter()
 
-@router.post("/", response_model=ProgramResponse)
-def create_program(program: ProgramCreate, db: Session = Depends(get_db)):
-    return ProgramRepository.create_program(db, program)
+# Dependency to get the database session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-@router.get("/{program_id}", response_model=ProgramResponse)
-def get_program(program_id: int, db: Session = Depends(get_db)):
-    program = ProgramRepository.get_program_by_id(db, program_id)
-    if program is None:
+# Create a new Program
+@router.post("/createProgram", response_model=ProgramResponse)
+def create_program_route(program: ProgramCreate, db: Session = Depends(get_db)):
+    return create_program(db=db, program=program)
+
+# Get all Programs
+@router.get("/getProgram", response_model=list[ProgramResponse])
+def get_programs_route(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    return get_programs(db=db, skip=skip, limit=limit)
+
+# Get a Program by programID
+@router.get("/{programID}", response_model=ProgramResponse)
+def get_program_route(programID: int, db: Session = Depends(get_db)):
+    db_program = get_program(db=db, programID=programID)
+    if db_program is None:
         raise HTTPException(status_code=404, detail="Program not found")
-    return program
+    return db_program
 
-@router.get("/", response_model=list[ProgramResponse])
-def get_all_programs(db: Session = Depends(get_db)):
-    return ProgramRepository.get_all_programs(db)
+# Update a Program by programID
+@router.put("/{programID}", response_model=ProgramResponse)
+def update_program_route(programID: int, program: ProgramUpdate, db: Session = Depends(get_db)):
+    db_program = update_program(db=db, programID=programID, program=program)
+    if db_program is None:
+        raise HTTPException(status_code=404, detail="Program not found")
+    return db_program
 
-@router.put("/{program_id}", response_model=ProgramResponse)
-def update_program(program_id: int, program: ProgramCreate, db: Session = Depends(get_db)):
-    return ProgramRepository.update_program(db, program_id, program)
-
-@router.delete("/{program_id}")
-def delete_program(program_id: int, db: Session = Depends(get_db)):
-    ProgramRepository.delete_program(db, program_id)
-    return {"message": "Program deleted successfully"}
+# Delete a Program by programID
+@router.delete("/{programID}", response_model=ProgramResponse)
+def delete_program_route(programID: int, db: Session = Depends(get_db)):
+    db_program = delete_program(db=db, programID=programID)
+    if db_program is None:
+        raise HTTPException(status_code=404, detail="Program not found")
+    return db_program
