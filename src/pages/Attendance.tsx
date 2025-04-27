@@ -38,16 +38,15 @@ const dummyEvents = [
 ];
 
 interface AttendanceRecord {
-  name: string;
+  studentName: string;
   date: string;
   location: string;
   description: string;
   yearLevel: string;
   program: string;
   timeIn: string;
-  checkpoint: string;
   timeOut: string;
-  studentId: string;
+  studentID: string;
   image?: string;
   status: "pending" | "time-in" | "checkpoint" | "time-out" | "completed";
 }
@@ -63,8 +62,7 @@ export const Attendance: React.FC<AttendanceProps> = ({ role }) => {
       program: "BS Computer Engineering",
       timeIn: "",
       checkpoint: "",
-      timeOut: "",
-      studentId: "",
+      studentID: "",
       status: "pending",
     }))
   );
@@ -202,7 +200,7 @@ export const Attendance: React.FC<AttendanceProps> = ({ role }) => {
   const handleManualSubmit = (index: number) => {
     const record = attendanceRecords[index];
 
-    if (!record.studentId) {
+    if (!record.studentID) {
       alert("Please enter Student ID");
       return;
     }
@@ -421,9 +419,9 @@ export const Attendance: React.FC<AttendanceProps> = ({ role }) => {
                             <input
                               type="text"
                               placeholder="Enter student ID"
-                              value={event.studentId}
+                              value={event.studentID}
                               onChange={(e) =>
-                                handleChange(index, "studentId", e.target.value)
+                                handleChange(index, "studentID", e.target.value)
                               }
                             />
                           </div>
@@ -549,7 +547,7 @@ export const Attendance: React.FC<AttendanceProps> = ({ role }) => {
                         disabled={
                           event.status === "completed" ||
                           scanning !== null ||
-                          (!event.studentId &&
+                          (!event.studentID &&
                             !event.timeIn &&
                             !event.checkpoint &&
                             !event.timeOut)

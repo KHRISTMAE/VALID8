@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { NavbarAdmin } from "../components/NavbarAdmin";
 import {
   AiFillEdit,
@@ -9,64 +9,53 @@ import search_logo from "../assets/images/search_logo.png";
 import Modal from "react-modal";
 import "../css/ManageUsers.css";
 
-const sampleUsers = [
-  {
-    firstName: "John",
-    middleName: "",
-    lastName: "Doe",
-    email: "johndoe@example.com",
-    role: ["Admin"],
-    profilePic: "",
-  },
-  {
-    firstName: "Jane",
-    middleName: "",
-    lastName: "Smith",
-    email: "janesmith@example.com",
-    role: ["Student"],
-    studentId: "2020-12345",
-    yearLevel: "1",
-    program: "BS Computer Engineering",
-    profilePic: "https://randomuser.me/api/portraits/women/44.jpg",
-  },
-  // ... (update other sample users similarly)
-];
-export const ManageUsers: React.FC = () => {
+interface Student {
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  email: string;
+  studentID?: string;
+  yearLevel?: string;
+  program?: string;
+  profilePic?: string;
+  role: string[];
+}
+
+const ManageUsers: React.FC = () => {
+  const API_BASE_URL = "http://localhost:8000"; // Replace with your actual API base URL
   const [profilePic, setProfilePic] = useState<File | null>(null);
   const [profilePicPreview, setProfilePicPreview] = useState<string>("");
   const [editProfilePic, setEditProfilePic] = useState<File | null>(null);
-  const [editProfilePicPreview, setEditProfilePicPreview] =
-    useState<string>("");
+  const [editProfilePicPreview, setEditProfilePicPreview] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editFileInputRef = useRef<HTMLInputElement>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [users, setUsers] = useState(sampleUsers);
+  const [users, setUsers] = useState<Student[]>([]);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
   const [addUserModalOpen, setAddUserModalOpen] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<
-    Record<string, string>
-  >({});
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [showStudentFields, setShowStudentFields] = useState(false);
-  const [studentId, setStudentId] = useState("");
+  const [studentID, setStudentID] = useState("");
   const [yearLevel, setYearLevel] = useState("1");
   const [program, setProgram] = useState("");
   const [customProgram, setCustomProgram] = useState("");
   const [showCustomProgramInput, setShowCustomProgramInput] = useState(false);
-  const [editStudentId, setEditStudentId] = useState("");
+  const [editStudentID, setEditStudentID] = useState("");
   const [editYearLevel, setEditYearLevel] = useState("1");
   const [editProgram, setEditProgram] = useState("");
   const [editCustomProgram, setEditCustomProgram] = useState("");
-  const [showEditCustomProgramInput, setShowEditCustomProgramInput] =
-    useState(false);
+  const [showEditCustomProgramInput, setShowEditCustomProgramInput] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [editedUser, setEditedUser] = useState({
+  const [editedUser, setEditedUser] = useState<Student>({
     firstName: "",
     middleName: "",
     lastName: "",
     email: "",
-    role: [] as string[],
+    role: [],
   });
 
   const [newUser, setNewUser] = useState({
@@ -78,7 +67,33 @@ export const ManageUsers: React.FC = () => {
     role: [] as string[],
   });
 
-  // Add this function to handle profile picture upload
+  // Fetch all students on component mount
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/students/all`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch students');
+        }
+        const data = await response.json();
+        // Map the API data to our student format
+        const formattedStudents = data.map((student: any) => ({
+          ...student,
+          role: ["Student"], // All from this endpoint are students
+          studentID: student.id, // Assuming id from API is studentID
+        }));
+        setUsers(formattedStudents);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStudents();
+  }, []);
+
+  // Handle profile picture upload
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -87,9 +102,7 @@ export const ManageUsers: React.FC = () => {
     }
   };
 
-  const handleEditProfilePicChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleEditProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setEditProfilePic(file);
@@ -113,8 +126,8 @@ export const ManageUsers: React.FC = () => {
 
   Modal.setAppElement("#root");
 
-  const getFullName = (user: any) => {
-    return [user.firstName, user.middleName, user.lastName]
+  const getFullName = (user: Student) => {
+    return [user.firstName + user.middleName + user.lastName]
       .filter(Boolean)
       .join(" ");
   };
@@ -123,15 +136,13 @@ export const ManageUsers: React.FC = () => {
     const user = users[index];
     setEditIndex(index);
     setEditedUser({ ...user });
-    setEditStudentId(user.studentId || "");
+    setEditStudentID(user.studentID || "");
     setEditYearLevel(user.yearLevel || "1");
     setEditProgram(user.program || "");
     setEditCustomProgram(
       defaultPrograms.includes(user.program || "") ? "" : user.program || ""
     );
-    setShowEditCustomProgramInput(
-      !defaultPrograms.includes(user.program || "")
-    );
+    setShowEditCustomProgramInput(!defaultPrograms.includes(user.program || ""));
     setValidationErrors({});
   };
 
@@ -163,11 +174,11 @@ export const ManageUsers: React.FC = () => {
     return errors;
   };
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
     const errors = validateFields(editedUser);
 
     if (editedUser.role.includes("Student")) {
-      if (!editStudentId.trim()) {
+      if (!editStudentID.trim()) {
         errors.studentId = "Student ID is required for Student role";
       }
       if (!editYearLevel) {
@@ -183,34 +194,89 @@ export const ManageUsers: React.FC = () => {
       return;
     }
 
-    const updatedUsers = [...users];
-    updatedUsers[editIndex!] = {
-      ...editedUser,
-      profilePic: editProfilePicPreview || users[editIndex!].profilePic,
-      ...(editedUser.role.includes("Student") && {
-        studentId: editStudentId,
-        yearLevel: editYearLevel,
-        program:
-          editProgram === "Other (Please specify)"
-            ? editCustomProgram
-            : editProgram,
-      }),
-    };
-    setUsers(updatedUsers);
-    setEditProfilePic(null);
-    setEditProfilePicPreview("");
-    setEditIndex(null);
-    setValidationErrors({});
+    try {
+      // Only update student if the role is Student
+      if (editedUser.role.includes("Student") && editIndex !== null) {
+        const studentId = users[editIndex].studentID;
+        const studentData = {
+          firstName: editedUser.firstName,
+          middleName: editedUser.middleName,
+          lastName: editedUser.lastName,
+          email: editedUser.email,
+          id: editStudentID,
+          yearLevel: editYearLevel,
+          program: editProgram === "Other (Please specify)" ? editCustomProgram : editProgram,
+        };
+
+        const response = await fetch(`${API_BASE_URL}/updateStudent/${studentId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(studentData),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update student');
+        }
+
+        const updatedStudent = await response.json();
+        
+        // Update local state
+        const updatedUsers = [...users];
+        updatedUsers[editIndex] = {
+          ...updatedStudent,
+          role: ["Student"],
+          profilePic: editProfilePicPreview || users[editIndex].profilePic,
+        };
+        setUsers(updatedUsers);
+      } else {
+        // For non-student roles, just update local state
+        const updatedUsers = [...users];
+        updatedUsers[editIndex!] = {
+          ...editedUser,
+          profilePic: editProfilePicPreview || users[editIndex!].profilePic,
+        };
+        setUsers(updatedUsers);
+      }
+
+      setEditProfilePic(null);
+      setEditProfilePicPreview("");
+      setEditIndex(null);
+      setValidationErrors({});
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update student');
+    }
   };
 
   const handleDeleteClick = (index: number) => {
     setDeleteIndex(index);
   };
 
-  const handleConfirmDelete = () => {
-    const updatedUsers = users.filter((_, i) => i !== deleteIndex);
-    setUsers(updatedUsers);
-    setDeleteIndex(null);
+  const handleConfirmDelete = async () => {
+    if (deleteIndex === null) return;
+
+    try {
+      const userToDelete = users[deleteIndex];
+      
+      // Only call API if the user is a student
+      if (userToDelete.role.includes("Student") && userToDelete.studentID) {
+        const response = await fetch(`${API_BASE_URL}/deleteStudent/${userToDelete.studentID}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete student');
+        }
+      }
+
+      // Update local state
+      const updatedUsers = users.filter((_, i) => i !== deleteIndex);
+      setUsers(updatedUsers);
+      setDeleteIndex(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete student');
+    }
   };
 
   const toggleRoleSelection = (
@@ -253,11 +319,20 @@ export const ManageUsers: React.FC = () => {
     setEditProgramDropdownOpen(false);
   };
 
-  const handleAddUser = () => {
+  const programMap: Record<string, number> = {
+    "BS Computer Engineering": 1,
+    "BS Civil Engineering": 2,
+    "BS Electronics Engineering": 3,
+    "BS Electrical Engineering": 4,
+    // Add other programs as needed
+  };
+
+
+  const handleAddUser = async () => {
     const errors = validateFields(newUser, true);
 
     if (newUser.role.includes("Student")) {
-      if (!studentId.trim()) {
+      if (!studentID.trim()) {
         errors.studentId = "Student ID is required for Student role";
       }
       if (!yearLevel) {
@@ -273,38 +348,85 @@ export const ManageUsers: React.FC = () => {
       return;
     }
 
-    const newUserObject = {
-      firstName: newUser.firstName,
-      middleName: newUser.middleName || "",
-      lastName: newUser.lastName,
-      email: newUser.email,
-      role: newUser.role,
-      ...(newUser.role.includes("Student") && {
-        studentId,
-        yearLevel,
-        program: program === "Other (Please specify)" ? customProgram : program,
-      }),
-      profilePic: profilePicPreview || "",
-    };
-    setUsers([...users, newUserObject]);
-    setProfilePic(null);
-    setProfilePicPreview("");
-    setAddUserModalOpen(false);
-    setNewUser({
-      firstName: "",
-      middleName: "",
-      lastName: "",
-      email: "",
-      password: "",
-      role: [],
-    });
-    setStudentId("");
-    setYearLevel("1");
-    setProgram("");
-    setCustomProgram("");
-    setShowStudentFields(false);
-    setShowCustomProgramInput(false);
-    setValidationErrors({});
+    try {
+      let newUserObject: any = {
+        firstName: newUser.firstName,
+        middleName: newUser.middleName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        profilePic: profilePicPreview || "",
+      };
+
+      if (newUser.role.includes("Student")) {
+        const selectedProgram = program === "Other (Please specify)" ? customProgram : program;
+        const programID = programMap[selectedProgram];
+        
+        if (isNaN(programID)) {
+          throw new Error('Invalid program selected');
+        }
+
+        const studentData = {
+          studentID: studentID,
+          studentName: `${newUser.firstName} ${newUser.middleName || ''} ${newUser.lastName}`.trim(),
+          email: newUser.email,
+          password: newUser.password,
+          programID: programID,
+          yearLevel: parseInt(yearLevel),
+          photo: profilePicPreview || null
+        };
+
+        const response = await fetch(`${API_BASE_URL}/createStudent`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(studentData),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create student');
+        }
+
+        const createdStudent = await response.json();
+        newUserObject = {
+          ...createdStudent,
+          firstName: newUser.firstName, // Split name back for frontend display
+          middleName: newUser.middleName,
+          lastName: newUser.lastName,
+          studentID: createdStudent.studentID,
+          profilePic: profilePicPreview || "",
+        };
+      } else {
+        // For non-student roles, just add to local state
+        newUserObject = {
+          ...newUserObject,
+          password: newUser.password,
+        };
+      }
+
+      // Update local state
+      setUsers([...users, newUserObject]);
+      setProfilePic(null);
+      setProfilePicPreview("");
+      setAddUserModalOpen(false);
+      setNewUser({
+        firstName: "",
+        middleName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        role: [],
+      });
+      setStudentID("");
+      setYearLevel("1");
+      setProgram("");
+      setCustomProgram("");
+      setShowStudentFields(false);
+      setShowCustomProgramInput(false);
+      setValidationErrors({});
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create user');
+    }
   };
 
   const getRoleBadge = (role: string) => {
@@ -332,7 +454,7 @@ export const ManageUsers: React.FC = () => {
       fullName,
       user.email,
       user.role.join(", "),
-      user.studentId || "",
+      user.studentID || "",
       user.yearLevel || "",
       user.program || "",
     ]
@@ -340,6 +462,14 @@ export const ManageUsers: React.FC = () => {
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
   });
+
+  if (isLoading) {
+    return <div>Loading users...</div>;
+  }
+
+  if (error) {
+    return <div className="alert alert-danger">Error: {error}</div>;
+  }
 
   return (
     <div className="manage-users-page">
@@ -411,9 +541,9 @@ export const ManageUsers: React.FC = () => {
                     <div>
                       {user.role.includes("Student") && (
                         <>
-                          {user.studentId && (
+                          {user.studentID && (
                             <div className="student-id">
-                              ID: {user.studentId}
+                              ID: {user.studentID}
                             </div>
                           )}
                           {user.yearLevel && (
@@ -581,9 +711,9 @@ export const ManageUsers: React.FC = () => {
                     type="text"
                     id="studentId"
                     placeholder="Student ID"
-                    value={studentId}
-                    onChange={(e) => setStudentId(e.target.value)}
-                    className={validationErrors.studentId ? "input-error" : ""}
+                    value={studentID}
+                    onChange={(e) => setStudentID(e.target.value)}
+                    className={validationErrors.studentID ? "input-error" : ""}
                   />
                   {validationErrors.studentId && (
                     <div className="error-message">
@@ -879,13 +1009,13 @@ export const ManageUsers: React.FC = () => {
                     type="text"
                     id="editStudentId"
                     placeholder="Student ID"
-                    value={editStudentId}
-                    onChange={(e) => setEditStudentId(e.target.value)}
-                    className={validationErrors.studentId ? "input-error" : ""}
+                    value={editStudentID}
+                    onChange={(e) => setEditStudentID(e.target.value)}
+                    className={validationErrors.studentID ? "input-error" : ""}
                   />
-                  {validationErrors.studentId && (
+                  {validationErrors.studentID && (
                     <div className="error-message">
-                      {validationErrors.studentId}
+                      {validationErrors.studentID}
                     </div>
                   )}
                 </div>

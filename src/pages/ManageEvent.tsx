@@ -17,11 +17,13 @@ interface ManageEventProps {
 }
 
 interface Event {
-  id: string; // Added id field for API operations
-  name: string;
-  date: string;
+  eventID: number;
+  eventName: string;
+  dateAndTime: string;
   location: string;
   status: string;
+  programID: number;
+  officerID: number;
 }
 
 export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
@@ -34,28 +36,26 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+  const [eventToDelete, setEventToDelete] = useState<number | null>(null);
 
   const [isCompleteModalOpen, setCompleteModalOpen] = useState(false);
-  const [eventToComplete, setEventToComplete] = useState<string | null>(null);
+  const [eventToComplete, setEventToComplete] = useState<number | null>(null);
 
   const [isUpcomingModalOpen, setUpcomingModalOpen] = useState(false);
-  const [eventToUpcoming, setEventToUpcoming] = useState<string | null>(null);
+  const [eventToUpcoming, setEventToUpcoming] = useState<number | null>(null);
 
   const [isActiveModalOpen, setActiveModalOpen] = useState(false);
-  const [eventToActive, setEventToActive] = useState<string | null>(null);
+  const [eventToActive, setEventToActive] = useState<number | null>(null);
 
-  const [dropdownOpenIndex, setDropdownOpenIndex] = useState<number | null>(
-    null
-  );
+  const [dropdownOpenIndex, setDropdownOpenIndex] = useState<number | null>(null);
 
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3003";
+  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
   // Fetch events from API
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/upcomingEvents`);
+        const response = await fetch(`${BASE_URL}/upcoming`);
         if (!response.ok) {
           throw new Error("Failed to fetch events");
         }
@@ -72,8 +72,9 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
 
     fetchEvents();
   }, []);
+
   const filteredEvents = events.filter((event) =>
-    event.name.toLowerCase().includes(searchTerm.toLowerCase())
+    event.eventName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const toggleDropdown = (index: number) => {
@@ -81,7 +82,10 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
   };
 
   const openEditModal = (event: Event) => {
-    setEditingEvent({ ...event });
+    setEditingEvent({ 
+      ...event,
+      dateAndTime: event.dateAndTime.slice(0, 16) // Format for datetime-local input
+    });
     setEditModalOpen(true);
   };
 
@@ -92,7 +96,10 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
 
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (editingEvent) {
-      setEditingEvent({ ...editingEvent, [e.target.name]: e.target.value });
+      setEditingEvent({ 
+        ...editingEvent, 
+        [e.target.name]: e.target.value
+      });
     }
   };
 
@@ -100,14 +107,22 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
     if (!editingEvent) return;
 
     try {
+      // Ensure full ISO datetime format
+      const payload = {
+        ...editingEvent,
+        dateAndTime: editingEvent.dateAndTime.length === 16 
+          ? `${editingEvent.dateAndTime}:00` 
+          : editingEvent.dateAndTime
+      };
+
       const response = await fetch(
-        `${BASE_URL}/upcomingEvents/${editingEvent.id}`,
+        `${BASE_URL}/updateEvent/${editingEvent.eventID}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(editingEvent),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -118,7 +133,7 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
       const updatedEvent = await response.json();
       setEvents(
         events.map((event) =>
-          event.id === updatedEvent.id ? updatedEvent : event
+          event.eventID === updatedEvent.eventID ? updatedEvent : event
         )
       );
       closeEditModal();
@@ -126,11 +141,11 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
       setError(err instanceof Error ? err.message : "Failed to update event");
     }
   };
-  const updateEventStatus = async (eventId: string, newStatus: string) => {
+
+  const updateEventStatus = async (eventId: number, newStatus: string) => {
     try {
-      // 1. Update the event status directly in the upcomingEvents array
-      const response = await fetch(`${BASE_URL}/upcomingEvents/${eventId}`, {
-        method: "PATCH", // Using PATCH to update only the status field
+      const response = await fetch(`${BASE_URL}/updateEvent/${eventId}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -139,10 +154,9 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
 
       if (!response.ok) throw new Error("Failed to update status");
 
-      // Update local state
       setEvents(
         events.map((event) =>
-          event.id === eventId ? { ...event, status: newStatus } : event
+          event.eventID === eventId ? { ...event, status: newStatus } : event
         )
       );
     } catch (err) {
@@ -154,12 +168,13 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
       setCompleteModalOpen(false);
     }
   };
+
   const handleDeleteEvent = async () => {
     if (!eventToDelete) return;
 
     try {
       const response = await fetch(
-        `${BASE_URL}/upcomingEvents/${eventToDelete}`,
+        `${BASE_URL}/deleteEvent/${eventToDelete}`,
         {
           method: "DELETE",
         }
@@ -169,7 +184,7 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
         throw new Error("Failed to delete event");
       }
 
-      setEvents(events.filter((event) => event.id !== eventToDelete));
+      setEvents(events.filter((event) => event.eventID !== eventToDelete));
       setDeleteModalOpen(false);
       setEventToDelete(null);
     } catch (err) {
@@ -273,13 +288,15 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
               </thead>
               <tbody>
                 {filteredEvents.map((event, index) => (
-                  <tr key={event.id}>
-                    <td data-label="Event Name">{event.name}</td>
+                  <tr key={event.eventID}>
+                    <td data-label="Event Name">{event.eventName}</td>
                     <td data-label="Date">
-                      {new Date(event.date).toLocaleDateString("en-US", {
+                      {new Date(event.dateAndTime).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
+                        hour: '2-digit',
+                        minute: '2-digit'
                       })}
                     </td>
                     <td data-label="Location">{event.location}</td>
@@ -303,7 +320,7 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
                         <button
                           className="btn btn-outline-danger btn-sm"
                           onClick={() => {
-                            setEventToDelete(event.id);
+                            setEventToDelete(event.eventID);
                             setDeleteModalOpen(true);
                           }}
                         >
@@ -329,7 +346,7 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
           {/* Dropdown menus rendered outside the table */}
           {filteredEvents.map((event, index) => (
             <div
-              key={`dropdown-${event.id}`}
+              key={`dropdown-${event.eventID}`}
               className={`status-dropdown-menu-container ${
                 dropdownOpenIndex === index ? "visible" : ""
               }`}
@@ -358,7 +375,7 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
                       event.status === "Upcoming" ? "active" : ""
                     }`}
                     onClick={() => {
-                      setEventToUpcoming(event.id);
+                      setEventToUpcoming(event.eventID);
                       setUpcomingModalOpen(true);
                     }}
                   >
@@ -369,7 +386,7 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
                       event.status === "Active" ? "active" : ""
                     }`}
                     onClick={() => {
-                      setEventToActive(event.id);
+                      setEventToActive(event.eventID);
                       setActiveModalOpen(true);
                     }}
                   >
@@ -380,7 +397,7 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
                       event.status === "Completed" ? "active" : ""
                     }`}
                     onClick={() => {
-                      setEventToComplete(event.id);
+                      setEventToComplete(event.eventID);
                       setCompleteModalOpen(true);
                     }}
                   >
@@ -411,21 +428,21 @@ export const ManageEvent: React.FC<ManageEventProps> = ({ role }) => {
               <input
                 type="text"
                 id="event-name"
-                name="name"
+                name="eventName"
                 className="form-control"
-                value={editingEvent?.name || ""}
+                value={editingEvent?.eventName || ""}
                 onChange={handleEditChange}
                 placeholder="Enter event name"
               />
             </div>
             <div className="form-group">
-              <label htmlFor="event-date">Date</label>
+              <label htmlFor="event-date">Date and Time</label>
               <input
-                type="date"
+                type="datetime-local"
                 id="event-date"
-                name="date"
+                name="dateAndTime"
                 className="form-control"
-                value={editingEvent?.date || ""}
+                value={editingEvent?.dateAndTime || ""}
                 onChange={handleEditChange}
               />
             </div>

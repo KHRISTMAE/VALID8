@@ -25,9 +25,9 @@ interface Program {
 }
 
 interface Event {
-  id?: number;
-  name: string;
-  date: string;
+  eventID: number;
+  eventName: string;
+  dateAndTime: Date;
   location: string;
   status?: string;
   programs?: Program[];
@@ -104,8 +104,8 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ role }) => {
     e.preventDefault();
 
     const eventData: Event = {
-      name: eventName,
-      date: eventDate,
+      eventName: eventName,
+      dateAndTime: eventDate,
       location: eventLocation,
       status: "Upcoming",
       programs: selectedPrograms,
